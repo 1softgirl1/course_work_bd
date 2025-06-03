@@ -137,7 +137,164 @@ function handleAddVisitForm(form) {
         });
 }
 
-// Обновите функцию loadClients для добавления кнопки просмотра визитов
+// Добавить в script.js
+function openEditClientModal(clientId) {
+    fetch(`/api/clients/${clientId}`)
+        .then(async response => {
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Ошибка сервера: ${errorText}`);
+            }
+            return response.json();
+        })
+        .then(client => {
+            // Заполняем основную информацию о клиенте
+            document.getElementById('editClientId').value = client._id;
+            document.getElementById('editFullName').value = client.full_name;
+            document.getElementById('editPassportNumber').value = client.passport_number;
+            document.getElementById('editPhone').value = client.contacts.phone;
+            document.getElementById('editEmail').value = client.contacts.email || '';
+
+            // Заполняем таблицу визитов
+            const visitsTable = document.querySelector('#editClientVisitsTable tbody');
+            visitsTable.innerHTML = '';
+
+            if (client.visits && client.visits.length > 0) {
+                client.visits.forEach(visit => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${visit.room_number}</td>
+                        <td>${visit.building_name}</td>
+                        <td>${formatDate(visit.start_date)} - ${formatDate(visit.end_date)}</td>
+                        <td>${visit.services_used ? visit.services_used.join(', ') : '-'}</td>
+                        <td>${visit.total_due || 0} руб.</td>
+                        <td>
+                            <button onclick="deleteClientVisit('${client._id}', '${visit._id}')" class="btn btn-danger">Удалить</button>
+                        </td>
+                    `;
+                    visitsTable.appendChild(row);
+                });
+            } else {
+                visitsTable.innerHTML = '<tr><td colspan="6">Нет визитов</td></tr>';
+            }
+
+            // Показываем модальное окно
+            document.getElementById('editClientModal').style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Ошибка загрузки данных клиента:', error);
+            alert('Произошла ошибка при загрузке данных клиента');
+        });
+}
+
+function closeEditClientModal() {
+    document.getElementById('editClientModal').style.display = 'none';
+}
+
+function deleteClientVisit(clientId, visitId) {
+    if (!confirm('Вы уверены, что хотите удалить этот визит?')) return;
+
+    fetch(`/api/clients/${clientId}/visits/${visitId}`, {
+        method: 'DELETE'
+    })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => { throw new Error(text) });
+            }
+            return response.json();
+        })
+        .then(() => {
+            // Перезагружаем данные клиента
+            openEditClientModal(clientId);
+            alert('Визит успешно удален');
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при удалении визита: ' + error.message);
+        });
+}
+
+// Обработчик формы редактирования клиента
+document.getElementById('editClientForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const clientId = document.getElementById('editClientId').value;
+    const formData = new FormData(e.target);
+
+    const clientData = {
+        full_name: formData.get('full_name'),
+        passport_number: formData.get('passport_number'),
+        contacts: {
+            phone: formData.get('phone'),
+            email: formData.get('email')
+        }
+    };
+
+    fetch(`/api/clients/${clientId}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(clientData),
+    })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => { throw new Error(text) });
+            }
+            return response.json();
+        })
+        .then(() => {
+            loadClients();
+            closeEditClientModal();
+            alert('Данные клиента успешно обновлены!');
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при обновлении данных клиента: ' + error.message);
+        });
+});
+
+// Обработчик формы добавления визита (в модальном окне редактирования)
+document.getElementById('addClientVisitForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const clientId = document.getElementById('editClientId').value;
+    const formData = new FormData(e.target);
+    const visitData = Object.fromEntries(formData.entries());
+
+    // Преобразование данных визита
+    visitData.start_date = new Date(visitData.start_date);
+    visitData.end_date = new Date(visitData.end_date);
+    if (visitData.total_due) visitData.total_due = Number(visitData.total_due);
+    if (visitData.services_used) visitData.services_used = visitData.services_used.split(',').map(s => s.trim());
+    if (visitData.complaints) visitData.complaints = visitData.complaints.split(',').map(s => s.trim());
+
+    fetch(`/api/clients/${clientId}/visits`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(visitData),
+    })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => { throw new Error(text) });
+            }
+            return response.json();
+        })
+        .then(() => {
+            // Перезагружаем данные клиента
+            openEditClientModal(clientId);
+            e.target.reset();
+            alert('Визит успешно добавлен!');
+        })
+        .catch(error => {
+            console.error('Ошибка:', error);
+            alert('Произошла ошибка при добавлении визита: ' + error.message);
+        });
+});
+
+// Обновим функцию loadClients, чтобы добавить кнопку редактирования
 function loadClients() {
     fetch('/api/clients')
         .then(response => response.json())
@@ -154,79 +311,13 @@ function loadClients() {
                     <td>${client.contacts.email || '-'}</td>
                     <td>${client.visits ? client.visits.length : 0}</td>
                     <td class="action-buttons">
-                        <button onclick="openAddVisitModal('${client._id}')" class="btn btn-secondary">Добавить визит</button>
-                        <button onclick="showClientVisits('${client._id}')" class="btn btn-info">Просмотреть визиты</button>
+                        <button onclick="openEditClientModal('${client._id}')" class="btn btn-primary">Редактировать</button>
                     </td>
                 `;
                 tbody.appendChild(row);
             });
         })
         .catch(error => console.error('Ошибка загрузки клиентов:', error));
-}
-
-// Функция для отображения визитов клиента
-// Исправленная функция showClientVisits
-function showClientVisits(clientId) {
-    fetch(`/api/clients/${clientId}`)
-        .then(response => response.json())
-        .then(client => {
-            const modal = document.createElement('div');
-            modal.className = 'modal';
-            modal.style.display = 'block';
-            modal.innerHTML = `
-                <div class="modal-content" style="max-width: 800px;">
-                    <span class="close" onclick="this.parentElement.parentElement.style.display='none'">&times;</span>
-                    <h2>Визиты клиента: ${client.full_name}</h2>
-                    <div class="visits-container">
-                        ${client.visits && client.visits.length > 0 ?
-                `<table class="visits-table">
-                                <thead>
-                                    <tr>
-                                        <th>Номер комнаты</th>
-                                        <th>Корпус</th>
-                                        <th>Даты</th>
-                                        <th>Услуги</th>
-                                        <th>Жалобы</th>
-                                        <th>Сумма</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${client.visits.map(visit => `
-                                        <tr>
-                                            <td>${visit.room_number}</td>
-                                            <td>${visit.building_name}</td>
-                                            <td>${formatDate(visit.start_date)} - ${formatDate(visit.end_date)}</td>
-                                            <td>${visit.services_used ? visit.services_used.join(', ') : '-'}</td>
-                                            <td>${visit.complaints ? visit.complaints.join(', ') : '-'}</td>
-                                            <td>${visit.total_due || 0} руб.</td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>`
-                : '<p>У клиента нет визитов</p>'}
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-
-            // Обработчик закрытия модального окна
-            modal.querySelector('.close').onclick = function() {
-                modal.style.display = 'none';
-                document.body.removeChild(modal);
-            };
-
-            // Закрытие при клике вне модального окна
-            modal.onclick = function(event) {
-                if (event.target === modal) {
-                    modal.style.display = 'none';
-                    document.body.removeChild(modal);
-                }
-            };
-        })
-        .catch(error => {
-            console.error('Ошибка загрузки визитов:', error);
-            alert('Произошла ошибка при загрузке визитов');
-        });
 }
 
 function loadCompanies() {
@@ -554,7 +645,6 @@ document.getElementById('editPaymentForm')?.addEventListener('submit', function(
         });
 });
 
-// Обновим функцию loadPayments, чтобы добавить кнопку редактирования
 function loadPayments() {
     fetch('/api/payments')
         .then(response => response.json())
@@ -564,12 +654,13 @@ function loadPayments() {
 
             payments.forEach(payment => {
                 const row = document.createElement('tr');
+                const clientName = payment.client_id?.full_name || 'Не указан';
                 const descriptionText = payment.description
                     ? payment.description.join(', ')
                     : 'Нет описания';
 
                 row.innerHTML = `
-                    <td>${payment.client_id.full_name}</td>
+                    <td>${clientName}</td>
                     <td>${formatDate(payment.date)}</td>
                     <td>${payment.amount} руб.</td>
                     <td>${descriptionText}</td>
