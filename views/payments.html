@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Платежи</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header>
+    <h1>Гостиничная система</h1>
+    <nav>
+        <a href="/">Главная</a>
+        <a href="/clients">Клиенты</a>
+        <a href="/companies">Компании</a>
+        <a href="/rooms">Номера</a>
+        <a href="/bookings">Бронирования</a>
+        <a href="/payments">Платежи</a>
+    </nav>
+</header>
+
+<main>
+    <h2>Платежи</h2>
+    <div class="table-container">
+        <table id="paymentsTable">
+            <thead>
+            <tr>
+                <th>Клиент</th>
+                <th>Дата</th>
+                <th>Сумма</th>
+                <th>Описание</th>
+                <th>Действия</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div> <br>
+    <div>
+        <button id="showPaymentFormBtn" class="show-form-btn">Добавить платеж</button>
+    </div>
+    <div id="addPaymentFormContainer" class="add-form" style="display: none;">
+        <h2>Добавить новый платеж</h2>
+        <form id="addPaymentForm">
+            <div class="form-group">
+                <label>ID клиента:</label>
+                <input type="text" name="client_id" required>
+            </div>
+            <div class="form-group">
+                <label>Дата:</label>
+                <input type="date" name="date" required>
+            </div>
+            <div class="form-group">
+                <label>Сумма:</label>
+                <input type="number" name="amount" required>
+            </div>
+            <div class="form-group">
+                <label>Описание:</label>
+                <input type="text" name="description">
+            </div>
+            <button type="submit">Добавить платеж</button>
+            <button type="button" onclick="hidePaymentForm()">Отмена</button>
+        </form>
+    </div>
+
+    <div id="editPaymentModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditPaymentModal()">&times;</span>
+            <h2>Редактировать платеж</h2>
+            <form id="editPaymentForm">
+                <input type="hidden" id="editPaymentId">
+                <div class="form-group">
+                    <label>ID клиента:</label>
+                    <input type="text" id="editPaymentClientId" name="client_id" required>
+                </div>
+                <div class="form-group">
+                    <label>Дата:</label>
+                    <input type="date" id="editPaymentDate" name="date" required>
+                </div>
+                <div class="form-group">
+                    <label>Сумма:</label>
+                    <input type="number" id="editPaymentAmount" name="amount" required>
+                </div>
+                <div class="form-group">
+                    <label>Описание (через запятую):</label>
+                    <input type="text" id="editPaymentDescription" name="description">
+                </div>
+                <button type="submit">Сохранить изменения</button>
+            </form>
+        </div>
+    </div>
+</main>
+<footer>
+    <p>&copy; 2025 Информационная система гостиничного комплекса</p>
+</footer>
+<script src="/script.js"></script>
+<script>
+    document.getElementById('showPaymentFormBtn').addEventListener('click', function() {
+        document.getElementById('addPaymentFormContainer').style.display = 'block';
+        this.style.display = 'none';
+    });
+
+    function hidePaymentForm() {
+        document.getElementById('addPaymentFormContainer').style.display = 'none';
+        document.getElementById('showPaymentFormBtn').style.display = 'block';
+    }
+
+    document.querySelector('#addPaymentForm button[type="button"]').addEventListener('click', hidePaymentForm);
+</script>
+</body>
+</html>

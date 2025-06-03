@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Бронирования</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        .add-form {
+            display: none;
+            margin-top: 20px;
+        }
+        .show-form-btn {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Гостиничная система</h1>
+    <nav>
+        <a href="/">Главная</a>
+        <a href="/clients">Клиенты</a>
+        <a href="/companies">Компании</a>
+        <a href="/rooms">Номера</a>
+        <a href="/bookings">Бронирования</a>
+        <a href="/payments">Платежи</a>
+    </nav>
+</header>
+
+<main>
+    <h2>Бронирования</h2>
+
+    <div class="table-container">
+        <table id="bookingsTable" class="table table-striped">
+            <thead>
+            <tr>
+                <th>Компания</th>
+                <th>Класс отеля</th>
+                <th>Этаж</th>
+                <th>Номера</th>
+                <th>Гости</th>
+                <th>Даты</th>
+                <th>Номера комнат</th>
+                <th>Статус</th>
+                <th>Действия</th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div> <br>
+    <button id="showFormBtn" class="show-form-btn">Добавить бронирование</button>
+
+    <div id="addBookingFormContainer" class="add-form">
+        <h2>Добавить новое бронирование</h2>
+        <form id="addBookingForm">
+            <div class="form-group">
+                <label>ID компании:</label>
+                <input type="text" name="company_id">
+            </div>
+            <div class="form-group">
+                <label>Класс отеля:</label>
+                <input type="number" name="hotel_class" min="1" max="5">
+            </div>
+            <div class="form-group">
+                <label>Этаж:</label>
+                <input type="number" name="floor">
+            </div>
+            <div class="form-group">
+                <label>Количество комнат:</label>
+                <input type="number" name="rooms_reserved" min="1">
+            </div>
+            <div class="form-group">
+                <label>Количество людей:</label>
+                <input type="number" name="people_count" min="1">
+            </div>
+            <div class="form-group">
+                <label>Дата заезда:</label>
+                <input type="date" name="start_date" required>
+            </div>
+            <div class="form-group">
+                <label>Дата выезда:</label>
+                <input type="date" name="end_date" required>
+            </div>
+            <div class="form-group">
+                <label>Номера комнат (через запятую):</label>
+                <input type="text" name="rooms_numbers">
+            </div>
+            <button type="submit">Добавить бронирование</button>
+            <button type="button" onclick="hideAddForm()">Отмена</button>
+        </form>
+    </div>
+    <div id="editBookingModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditBookingModal()">&times;</span>
+            <h2>Редактировать бронирование</h2>
+            <form id="editBookingForm">
+                <input type="hidden" id="editBookingId">
+                <div class="form-group">
+                    <label>ID компании:</label>
+                    <input type="text" id="editBookingCompanyId" name="company_id">
+                </div>
+                <div class="form-group">
+                    <label>Класс отеля:</label>
+                    <input type="number" id="editBookingHotelClass" name="hotel_class" min="1" max="5">
+                </div>
+                <div class="form-group">
+                    <label>Этаж:</label>
+                    <input type="number" id="editBookingFloor" name="floor">
+                </div>
+                <div class="form-group">
+                    <label>Количество комнат:</label>
+                    <input type="number" id="editBookingRoomsReserved" name="rooms_reserved" min="1">
+                </div>
+                <div class="form-group">
+                    <label>Количество людей:</label>
+                    <input type="number" id="editBookingPeopleCount" name="people_count" min="1">
+                </div>
+                <div class="form-group">
+                    <label>Дата заезда:</label>
+                    <input type="date" id="editBookingStartDate" name="start_date" required>
+                </div>
+                <div class="form-group">
+                    <label>Дата выезда:</label>
+                    <input type="date" id="editBookingEndDate" name="end_date" required>
+                </div>
+                <div class="form-group">
+                    <label>Номера комнат (через запятую):</label>
+                    <input type="text" id="editBookingRoomsNumbers" name="rooms_numbers">
+                </div>
+                <div class="form-group">
+                    <label>Статус:</label>
+                    <select id="editBookingCanceled" name="canceled">
+                        <option value="false">Активно</option>
+                        <option value="true">Отменено</option>
+                    </select>
+                </div>
+                <button type="submit">Сохранить изменения</button>
+            </form>
+        </div>
+    </div>
+</main>
+
+<script src="/script.js"></script>
+<script>
+    // Показать форму добавления
+    document.getElementById('showFormBtn').addEventListener('click', function() {
+        document.getElementById('addBookingFormContainer').style.display = 'block';
+        this.style.display = 'none';
+    });
+
+    // Скрыть форму добавления
+    function hideAddForm() {
+        document.getElementById('addBookingFormContainer').style.display = 'none';
+        document.getElementById('showFormBtn').style.display = 'block';
+    }
+
+    document.querySelector('#addBookingForm button[type="button"]').addEventListener('click', hideAddForm);
+</script>
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Клиенты</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        .add-form {
+            display: none;
+            margin-top: 20px;
+        }
+        .show-form-btn {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Гостиничная система</h1>
+    <nav>
+        <a href="/">Главная</a>
+        <a href="/clients">Клиенты</a>
+        <a href="/companies">Компании</a>
+        <a href="/rooms">Номера</a>
+        <a href="/bookings">Бронирования</a>
+        <a href="/payments">Платежи</a>
+    </nav>
+</header>
+
+<main>
+    <h2>Клиенты</h2>
+    <div>
+        <button id="showClientFormBtn" class="show-form-btn">Добавить клиента</button>
+    </div>
+
+    <div id="addClientFormContainer" class="add-form">
+        <h2>Добавить нового клиента</h2>
+        <form id="addClientForm">
+            <div class="form-group">
+                <label>ФИО:</label>
+                <input type="text" name="full_name" required>
+            </div>
+            <div class="form-group">
+                <label>Номер паспорта:</label>
+                <input type="text" name="passport_number" required>
+            </div>
+            <div class="form-group">
+                <label>Телефон:</label>
+                <input type="text" name="contacts.phone" required>
+            </div>
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="email" name="contacts.email">
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Добавить клиента</button>
+                <button type="button" onclick="hideClientForm()">Отмена</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-container">
+        <table id="clientsTable">
+            <thead>
+            <tr>
+                <th>ФИО</th>
+                <th>Паспорт</th>
+                <th>Телефон</th>
+                <th>Email</th>
+                <th>Количество визитов</th>
+                <th>Действия</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Данные будут загружены через JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Модальное окно для добавления визита -->
+    <div id="visitModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Добавить визит</h2>
+            <form id="addVisitForm">
+                <input type="hidden" id="clientIdForVisit">
+
+                <div class="field-group">
+                    <div class="field-group-title">Информация о проживании</div>
+                    <div class="form-group">
+                        <label>Номер комнаты:</label>
+                        <input type="text" name="room_number" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Корпус:</label>
+                        <input type="text" name="building_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Дата заезда:</label>
+                        <input type="date" name="start_date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Дата выезда:</label>
+                        <input type="date" name="end_date" required>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-group-title">Дополнительные услуги</div>
+                    <div class="form-group">
+                        <label>Использованные услуги (через запятую):</label>
+                        <input type="text" name="services_used">
+                    </div>
+                    <div class="form-group">
+                        <label>Жалобы (через запятую):</label>
+                        <input type="text" name="complaints">
+                    </div>
+                    <div class="form-group">
+                        <label>Общая сумма:</label>
+                        <input type="number" name="total_due" step="0.01">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Добавить визит</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="editClientModal" class="modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <span class="close" onclick="closeEditClientModal()">&times;</span>
+            <h2>Редактирование клиента</h2>
+
+            <form id="editClientForm">
+                <input type="hidden" id="editClientId" name="id">
+
+                <div class="form-group">
+                    <label for="editFullName">ФИО:</label>
+                    <input type="text" id="editFullName" name="full_name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editPassportNumber">Номер паспорта:</label>
+                    <input type="text" id="editPassportNumber" name="passport_number" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editPhone">Телефон:</label>
+                    <input type="tel" id="editPhone" name="phone" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editEmail">Email:</label>
+                    <input type="email" id="editEmail" name="email">
+                </div>
+
+                <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+            </form>
+
+            <h3>Визиты клиента</h3>
+            <table id="editClientVisitsTable" class="data-table">
+                <thead>
+                <tr>
+                    <th>Номер комнаты</th>
+                    <th>Корпус</th>
+                    <th>Даты</th>
+                    <th>Услуги</th>
+                    <th>Сумма</th>
+                    <th>Действия</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <h3>Добавить визит</h3>
+            <form id="addClientVisitForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="visitRoomNumber">Номер комнаты:</label>
+                        <input type="text" id="visitRoomNumber" name="room_number" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="visitBuildingName">Корпус:</label>
+                        <input type="text" id="visitBuildingName" name="building_name" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="visitStartDate">Дата заезда:</label>
+                        <input type="date" id="visitStartDate" name="start_date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="visitEndDate">Дата выезда:</label>
+                        <input type="date" id="visitEndDate" name="end_date" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="visitServicesUsed">Услуги (через запятую):</label>
+                        <input type="text" id="visitServicesUsed" name="services_used">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="visitTotalDue">Сумма:</label>
+                        <input type="number" id="visitTotalDue" name="total_due" step="0.01">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="visitComplaints">Жалобы (через запятую):</label>
+                    <textarea id="visitComplaints" name="complaints" rows="2"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-secondary">Добавить визит</button>
+            </form>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <p>&copy; 2023 Гостиничная система</p>
+</footer>
+
+<script src="/script.js"></script>
+<script>
+    document.getElementById('showClientFormBtn').addEventListener('click', function() {
+        document.getElementById('addClientFormContainer').style.display = 'block';
+        this.style.display = 'none';
+    });
+
+    function hideClientForm() {
+        document.getElementById('addClientFormContainer').style.display = 'none';
+        document.getElementById('showClientFormBtn').style.display = 'block';
+    }
+
+</script>
+</body>
+</html>

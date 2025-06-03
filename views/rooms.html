@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Номера</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        .add-form {
+            display: none;
+            margin-top: 20px;
+        }
+        .show-form-btn {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Гостиничная система</h1>
+    <nav>
+        <a href="/">Главная</a>
+        <a href="/clients">Клиенты</a>
+        <a href="/companies">Компании</a>
+        <a href="/rooms">Номера</a>
+        <a href="/bookings">Бронирования</a>
+        <a href="/payments">Платежи</a>
+    </nav>
+</header>
+
+<main>
+    <h2>Номера</h2>
+    <div class="table-container">
+        <table id="roomsTable">
+            <thead>
+            <tr>
+                <th>Номер</th>
+                <th>Корпус</th>
+                <th>Этаж</th>
+                <th>Вместимость</th>
+                <th>Статус</th>
+                <th>Цена за ночь</th>
+                <th>Удобства номера</th>
+                <th>Удобства корпуса</th>
+                <th>Следующее бронирование</th>
+                <th>Действия</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Данные будут загружены через JavaScript -->
+            </tbody>
+        </table>
+    </div>
+    <div>
+        <button id="showRoomFormBtn" class="show-form-btn">Добавить номер</button>
+    </div>
+
+    <div id="addRoomFormContainer" class="add-form">
+        <h2>Добавить новый номер</h2>
+        <form id="addRoomForm">
+            <div class="form-group">
+                <label>Номер комнаты:</label>
+                <input type="text" name="number" required>
+            </div>
+            <div class="form-group">
+                <label>Этаж:</label>
+                <input type="number" name="floor" required>
+            </div>
+            <div class="form-group">
+                <label>Вместимость:</label>
+                <input type="number" name="capacity" required>
+            </div>
+            <div class="form-group">
+                <label>Статус:</label>
+                <select name="status" required>
+                    <option value="свободен">Свободен</option>
+                    <option value="занят">Занят</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Цена за ночь:</label>
+                <input type="number" name="price_per_night" required>
+            </div>
+            <div class="form-group">
+                <label>Название здания:</label>
+                <input type="text" name="building.name" required>
+            </div>
+            <div class="form-group">
+                <label>Количество звезд:</label>
+                <input type="number" name="building.stars" min="1" max="5">
+            </div>
+            <div class="form-group">
+                <label>Удобства в номере (через запятую):</label>
+                <input type="text" name="amenities">
+            </div>
+            <div class="form-group">
+                <label>Удобства в здании (через запятую):</label>
+                <input type="text" name="building.amenities">
+            </div>
+            <div class="form-actions">
+                <button type="submit">Добавить номер</button>
+                <button type="button" id="cancelAddRoomBtn">Отменить</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="editRoomModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditRoomModal()">&times;</span>
+            <h2>Редактировать номер</h2>
+            <form id="editRoomForm">
+                <input type="hidden" id="editRoomId" name="id">
+                <div class="form-group">
+                    <label>Номер комнаты:</label>
+                    <input type="text" id="editRoomNumber" name="number" required>
+                </div>
+                <div class="form-group">
+                    <label>Этаж:</label>
+                    <input type="number" id="editRoomFloor" name="floor" required>
+                </div>
+                <div class="form-group">
+                    <label>Вместимость:</label>
+                    <input type="number" id="editRoomCapacity" name="capacity" required>
+                </div>
+                <div class="form-group">
+                    <label>Статус:</label>
+                    <select id="editRoomStatus" name="status" required>
+                        <option value="свободен">Свободен</option>
+                        <option value="занят">Занят</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Цена за ночь:</label>
+                    <input type="number" id="editRoomPrice" name="price_per_night" required>
+                </div>
+                <div class="form-group">
+                    <label>Название здания:</label>
+                    <input type="text" id="editRoomBuildingName" name="building.name" required>
+                </div>
+                <div class="form-group">
+                    <label>Количество звезд:</label>
+                    <input type="number" id="editRoomBuildingStars" name="building.stars" min="1" max="5">
+                </div>
+                <div class="form-group">
+                    <label>Удобства в номере (через запятую):</label>
+                    <input type="text" id="editRoomAmenities" name="amenities">
+                </div>
+                <div class="form-group">
+                    <label>Удобства в здании (через запятую):</label>
+                    <input type="text" id="editRoomBuildingAmenities" name="building.amenities">
+                </div>
+                <div class="form-actions">
+                    <button type="submit">Сохранить изменения</button>
+                    <button type="button" onclick="closeEditRoomModal()">Отменить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <p>&copy; 2025 Информационная система гостиничного комплекса</p>
+</footer>
+
+<script src="/script.js"></script>
+<script>
+    document.getElementById('showRoomFormBtn').addEventListener('click', function() {
+        document.getElementById('addRoomFormContainer').style.display = 'block';
+        this.style.display = 'none';
+    });
+
+    function hideRoomForm() {
+        document.getElementById('addRoomFormContainer').style.display = 'none';
+        document.getElementById('showRoomFormBtn').style.display = 'block';
+        document.getElementById('addRoomForm').reset();
+    }
+
+    document.getElementById('cancelAddRoomBtn').addEventListener('click', hideRoomForm);
+
+
+</script>
+</body>
+</html>
