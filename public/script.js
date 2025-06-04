@@ -1,8 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Определяем текущую страницу
     const path = window.location.pathname;
 
-    // Загружаем данные в зависимости от текущей страницы
     if (path.endsWith('/clients') || path.endsWith('/clients.html')) {
         loadClients();
         const form = document.querySelector('#addClientForm');
@@ -16,7 +14,6 @@ document.addEventListener('DOMContentLoaded', function() {
             form.addEventListener('submit', (e) => handleFormSubmit(e, '/api/companies', loadCompanies));
         }
 
-        // Добавляем обработчик формы редактирования только если мы на странице компаний
         const editForm = document.getElementById('editCompanyForm');
         if (editForm) {
             editForm.addEventListener('submit', function(e) {
@@ -44,7 +41,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Инициализация модального окна визитов
     const visitModal = document.getElementById('visitModal');
     if (visitModal) {
         const closeModal = visitModal.querySelector('.close');
@@ -63,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
-// Функция для обработки формы редактирования компании
+
 function handleEditCompanyForm(form) {
     const companyId = document.getElementById('editCompanyId').value;
     const formData = new FormData(form);
@@ -103,7 +99,6 @@ function handleEditCompanyForm(form) {
         });
 }
 
-// Функция для обработки формы добавления визита
 function handleAddVisitForm(form) {
     const clientId = document.getElementById('clientIdForVisit').value;
     const formData = new FormData(form);
@@ -137,7 +132,6 @@ function handleAddVisitForm(form) {
         });
 }
 
-// Добавить в script.js
 function openEditClientModal(clientId) {
     fetch(`/api/clients/${clientId}`)
         .then(async response => {
@@ -148,14 +142,12 @@ function openEditClientModal(clientId) {
             return response.json();
         })
         .then(client => {
-            // Заполняем основную информацию о клиенте
             document.getElementById('editClientId').value = client._id;
             document.getElementById('editFullName').value = client.full_name;
             document.getElementById('editPassportNumber').value = client.passport_number;
             document.getElementById('editPhone').value = client.contacts.phone;
             document.getElementById('editEmail').value = client.contacts.email || '';
 
-            // Заполняем таблицу визитов
             const visitsTable = document.querySelector('#editClientVisitsTable tbody');
             visitsTable.innerHTML = '';
 
@@ -178,7 +170,6 @@ function openEditClientModal(clientId) {
                 visitsTable.innerHTML = '<tr><td colspan="6">Нет визитов</td></tr>';
             }
 
-            // Показываем модальное окно
             document.getElementById('editClientModal').style.display = 'block';
         })
         .catch(error => {
@@ -214,7 +205,6 @@ function deleteClientVisit(clientId, visitId) {
         });
 }
 
-// Обработчик формы редактирования клиента
 document.getElementById('editClientForm')?.addEventListener('submit', function(e) {
     e.preventDefault();
 
@@ -254,7 +244,6 @@ document.getElementById('editClientForm')?.addEventListener('submit', function(e
         });
 });
 
-// Обработчик формы добавления визита (в модальном окне редактирования)
 document.getElementById('addClientVisitForm')?.addEventListener('submit', function(e) {
     e.preventDefault();
 
@@ -283,7 +272,6 @@ document.getElementById('addClientVisitForm')?.addEventListener('submit', functi
             return response.json();
         })
         .then(() => {
-            // Перезагружаем данные клиента
             openEditClientModal(clientId);
             e.target.reset();
             alert('Визит успешно добавлен!');
@@ -294,7 +282,6 @@ document.getElementById('addClientVisitForm')?.addEventListener('submit', functi
         });
 });
 
-// Обновим функцию loadClients, чтобы добавить кнопку редактирования
 function loadClients() {
     fetch('/api/clients')
         .then(response => response.json())
@@ -373,7 +360,7 @@ function loadRooms() {
         })
         .catch(error => console.error('Ошибка загрузки номеров:', error));
 }
-// Функция для открытия модального окна редактирования номера
+
 function openEditRoomModal(roomId) {
     fetch(`/api/rooms/${roomId}`)
         .then(async response => {
@@ -406,19 +393,16 @@ function openEditRoomModal(roomId) {
             alert('Произошла ошибка при загрузке данных номера. Подробности в консоли.');
         });
 }
-// Функция для закрытия модального окна редактирования номера
 function closeEditRoomModal() {
     document.getElementById('editRoomModal').style.display = 'none';
 }
 
-// Обработчик формы редактирования номера
 document.getElementById('editRoomForm')?.addEventListener('submit', function(e) {
     e.preventDefault();
 
     const roomId = document.getElementById('editRoomId').value;
     const formData = new FormData(e.target);
 
-    // Create properly structured room data
     const roomData = {
         number: formData.get('number'),
         floor: Number(formData.get('floor')),
@@ -460,7 +444,7 @@ document.getElementById('editRoomForm')?.addEventListener('submit', function(e) 
             alert('Произошла ошибка при обновлении данных номера: ' + error.message);
         });
 });
-// Добавить в script.js
+
 function openEditBookingModal(bookingId) {
     fetch(`/api/bookings/${bookingId}`)
         .then(async response => {
@@ -498,7 +482,6 @@ function closeEditBookingModal() {
     document.getElementById('editBookingModal').style.display = 'none';
 }
 
-// Обработчик формы редактирования бронирования
 document.getElementById('editBookingForm')?.addEventListener('submit', function(e) {
     e.preventDefault();
 
@@ -543,7 +526,6 @@ document.getElementById('editBookingForm')?.addEventListener('submit', function(
         });
 });
 
-// Обновим функцию loadBookings, чтобы добавить кнопку редактирования
 function loadBookings() {
     fetch('/api/bookings')
         .then(response => response.json())
@@ -605,7 +587,6 @@ function closeEditPaymentModal() {
     document.getElementById('editPaymentModal').style.display = 'none';
 }
 
-// Обработчик формы редактирования платежа
 document.getElementById('editPaymentForm')?.addEventListener('submit', function(e) {
     e.preventDefault();
 
@@ -784,16 +765,13 @@ addVisitForm.addEventListener('submit', function(e) {
         });
 });
 
-// Добавить в script.js
 function openEditCompanyModal(companyId) {
     fetch(`/api/companies/${companyId}`)
         .then(async response => {
-            // Если ответ не OK (статус не 200-299), читаем текст ошибки
             if (!response.ok) {
                 const errorText = await response.text();
                 throw new Error(`Ошибка сервера: ${errorText}`);
             }
-            // Проверяем, что ответ — JSON
             const contentType = response.headers.get('content-type');
             if (!contentType?.includes('application/json')) {
                 throw new TypeError('Сервер вернул не JSON!');
@@ -809,7 +787,6 @@ function openEditCompanyModal(companyId) {
             document.getElementById('editContractEnd').value = company.contract.end?.split('T')[0] || '';
             document.getElementById('editDiscountPercent').value = company.contract.discount_percent || '';
             document.getElementById('editSpecialConditions').value = company.contract.special_conditions || '';
-            // Показываем модальное окно
             document.getElementById('editCompanyModal').style.display = 'block';
         })
         .catch(error => {
@@ -823,14 +800,12 @@ function closeEditModal() {
 }
 
 
-// Замените текущий обработчик формы редактирования на этот
 document.getElementById('editCompanyForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
     const companyId = document.getElementById('editCompanyId').value;
     const formData = new FormData(e.target);
 
-    // Создаем правильную структуру данных для компании
     const companyData = {
         name: formData.get('name'),
         type: formData.get('type'),
@@ -864,4 +839,23 @@ document.getElementById('editCompanyForm').addEventListener('submit', function(e
             console.error('Ошибка:', error);
             alert('Произошла ошибка при обновлении данных компании: ' + error.message);
         });
+});
+
+
+document.querySelectorAll('.close').forEach(closeBtn => {
+    closeBtn.onclick = function() {
+        // Находим ближайшее родительское модальное окно и скрываем его
+        const modal = this.closest('.modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    };
+});
+
+window.addEventListener('click', function(event) {
+    document.querySelectorAll('.modal').forEach(modal => {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
 });

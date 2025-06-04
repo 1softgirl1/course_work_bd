@@ -179,5 +179,20 @@
 </footer>
 
 <script src="/script.js"></script>
+<script>
+    // Добавленный обработчик для кнопки показа формы добавления клиента
+    document.getElementById('showClientFormBtn').addEventListener('click', function() {
+        const formContainer = document.getElementById('addClientFormContainer');
+        if (formContainer.style.display === 'none' || !formContainer.style.display) {
+            formContainer.style.display = 'block';
+        } else {
+            formContainer.style.display = 'none';
+        }
+    });
+
+    function hideClientForm() {
+        document.getElementById('addClientFormContainer').style.display = 'none';
+    }
+</script>
 </body>
 </html>
